@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import {signInUser} from '../Config/Firebase'
-
+import { Link, useNavigate } from 'react-router-dom';
+import { signInUser } from '../Config/Firebase';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -11,7 +10,9 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const navigate = useNavigate();
 
   const styles = {
     container: {
@@ -69,7 +70,8 @@ export default function Login() {
       boxSizing: 'border-box'
     },
     inputError: {
-      borderColor: '#ef4444'
+      borderColor: '#ef4444',
+      background: '#fef2f2'
     },
     icon: {
       position: 'absolute',
@@ -137,7 +139,20 @@ export default function Login() {
       fontWeight: '600',
       cursor: 'pointer',
       transition: 'all 0.3s',
-      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)'
+      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    },
+    spinner: {
+      width: '16px',
+      height: '16px',
+      border: '2px solid #ffffff',
+      borderTop: '2px solid transparent',
+      borderRadius: '50%',
+      display: 'inline-block',
+      animation: 'spin 0.6s linear infinite'
     },
     divider: {
       display: 'flex',
@@ -181,21 +196,26 @@ export default function Login() {
       textDecoration: 'none',
       fontWeight: '600'
     },
+    successIconWrapper: {
+      display: 'flex',
+      justifyContent: 'center',
+      marginBottom: '20px'
+    },
     successIcon: {
       width: '80px',
       height: '80px',
-      margin: '0 auto 20px',
       color: '#10b981',
-      display: 'block'
+      animation: 'scaleIn 0.3s ease'
     },
     successTitle: {
-      fontSize: '32px',
+      fontSize: '28px',
       color: '#1a202c',
       marginBottom: '8px',
       fontWeight: 'bold'
     },
     successText: {
-      color: '#718096'
+      color: '#718096',
+      fontSize: '15px'
     }
   };
 
@@ -210,6 +230,8 @@ export default function Login() {
     
     if (!formData.password) {
       newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
     }
     
     setErrors(newErrors);
@@ -217,25 +239,24 @@ export default function Login() {
   };
 
   const handleSubmit = async () => {
-      if (validateForm()) {
-        setIsLoading(true);
-        
-        const result = await signInUser(formData.email, formData.password);
-        
-        if (result.success) {
-          setIsSubmitted(true);
-          setTimeout(() => {
-            setIsSubmitted(false);
-            navigate('');
-          }, 2000);
-        } else {
-          alert(result.error);
-          setErrors({ ...errors, submit: result.error });
-        }
-        
-        setIsLoading(false);
+    if (validateForm()) {
+      setIsLoading(true);
+      
+      const result = await signInUser(formData.email, formData.password);
+      
+      if (result.success) {
+        setIsSubmitted(true);
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+      } else {
+        alert(result.error);
+        setErrors(prev => ({ ...prev, submit: result.error }));
       }
-    };
+      
+      setIsLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -245,16 +266,24 @@ export default function Login() {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
   if (isSubmitted) {
     return (
       <div style={styles.container}>
         <div style={styles.card}>
           <div style={{ textAlign: 'center' }}>
-            <svg style={styles.successIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <h2 style={styles.successTitle}>Welcome Back! To PitchCraft</h2>
-            <p style={styles.successText}>You have successfully signed in.</p>
+            <div style={styles.successIconWrapper}>
+              <svg style={styles.successIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h2 style={styles.successTitle}>Welcome Back to PitchCraft!</h2>
+            <p style={styles.successText}>Redirecting to dashboard...</p>
           </div>
         </div>
       </div>
@@ -281,11 +310,13 @@ export default function Login() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                onKeyPress={handleKeyPress}
                 style={{
                   ...styles.input,
                   ...(errors.email ? styles.inputError : {})
                 }}
-                placeholder="Enter Email"
+                placeholder="Enter your email"
+                autoComplete="email"
               />
             </div>
             {errors.email && (
@@ -304,16 +335,19 @@ export default function Login() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
+                onKeyPress={handleKeyPress}
                 style={{
                   ...styles.input,
                   ...(errors.password ? styles.inputError : {})
                 }}
-                placeholder="••••••••"
+                placeholder="Enter your password"
+                autoComplete="current-password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 style={styles.toggleButton}
+                aria-label="Toggle password visibility"
               >
                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {showPassword ? (
@@ -350,17 +384,33 @@ export default function Login() {
 
           <button
             onClick={handleSubmit}
-            style={styles.submitButton}
+            disabled={isLoading}
+            style={{
+              ...styles.submitButton,
+              opacity: isLoading ? 0.7 : 1,
+              cursor: isLoading ? 'not-allowed' : 'pointer'
+            }}
             onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.5)';
+              if (!isLoading) {
+                e.currentTarget.style.transform = 'scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.5)';
+              }
             }}
             onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+              if (!isLoading) {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+              }
             }}
           >
-            Sign In
+            {isLoading ? (
+              <>
+                <span style={styles.spinner}></span>
+                Signing In...
+              </>
+            ) : (
+              'Sign In'
+            )}
           </button>
 
           <div style={styles.divider}>
@@ -408,12 +458,30 @@ export default function Login() {
         </div>
 
         <div style={styles.footer}>
-  <p>
-    Don't have an account?{' '}
-    <Link to="/signup" style={styles.link}>Register</Link>
-  </p>
-</div>
+          <p>
+            Don't have an account?{' '}
+            <Link to="/signup" style={styles.link}>Register</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
+}
+
+// Add keyframes animation
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = `
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  `;
+  if (!document.querySelector('style[data-login-animations]')) {
+    styleSheet.setAttribute('data-login-animations', 'true');
+    document.head.appendChild(styleSheet);
+  }
 }

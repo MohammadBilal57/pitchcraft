@@ -323,7 +323,7 @@ const Dashboard = () => {
       </main>
 
       <footer style={{ textAlign: "center", padding: "15px", color: "#777", marginTop: "40px" }}>
-        © {new Date().getFullYear()} <span style={{ color: "#7c3aed", fontWeight: "600" }}>PitchCraft</span> — AI Startup Partner
+        © {new Date().getFullYear()} <span style={{ color: "#7c3aed", fontWeight: "600" }}>PitchCraft</span> — AI Startup Made By Bilal
       </footer>
     </>
   );

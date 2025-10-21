@@ -1,13 +1,11 @@
 {
-  "name": "pitchcraft",
-  "homepage": "https://MohammadBilal57.github.io/pitchcraft/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "start": "react-scripts start",
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run build",
     "lint": "eslint .",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
