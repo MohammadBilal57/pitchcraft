@@ -7,6 +7,6 @@ export default defineConfig({
   server:{
     port: 5173,
     open: '/',
-    base:'/pitchcraft'
+     base: '/pitchcraft/',
   }
 })
