@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
-    <meta http-equiv="refresh" content="0; url=/pitchcraft/" />
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PitchCraft</title>
   </head>
   <body>
-    <p>Redirecting to the app...</p>
-    <script>
-      const pathname = window.location.pathname.replace('/pitchcraft', '');
-      const search = window.location.search;
-      const hash = window.location.hash;
-      window.location.replace(`/pitchcraft/${pathname}${search}${hash}`);
-    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
