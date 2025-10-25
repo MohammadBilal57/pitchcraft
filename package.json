@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://mohammadbilal57.github.io/pitchcraft/", 
+  "signup": "https://mohammadbilal57.github.io/signup/",
+  "signin": "https://mohammadbilal57.github.io/signin/",
+  "dashboard": "https://mohammadbilal57.github.io/dashboard/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
